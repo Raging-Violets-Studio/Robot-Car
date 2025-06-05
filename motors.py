@@ -52,13 +52,17 @@ class MotorsController:
             motor.set_speed(speed)
 
     def test_motors(self, speed=20, duration=2):
-        """Sequentially spin each motor to verify wiring."""
+        """Spin each motor forward and backward to verify wiring."""
         for name, motor in self.motors.items():
-            print(f"Testing {name} motor at speed {speed}")
-            motor.set_speed(speed)
-            time.sleep(duration)
-            motor.set_speed(0)
-            time.sleep(1)
+            for direction in [1, -1]:
+                dir_str = "FORWARD" if direction == 1 else "BACKWARD"
+                actual_speed = direction * speed
+                print(f"Testing {name} motor {dir_str} at speed {actual_speed}")
+                motor.set_speed(actual_speed)
+                time.sleep(duration)
+                motor.set_speed(0)
+                time.sleep(1)
+
 
 if __name__ == '__main__':
     mc = MotorsController()
