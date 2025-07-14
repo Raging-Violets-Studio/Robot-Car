@@ -22,13 +22,14 @@ class Servo:
     def deinit(self):
         self.pwm.deinit()
 
-# Example usage:
-servo = Servo(pin=13)  # Use your actual GPIO pin
-servo.set_angle(90)    # Center
-time.sleep(1)
-servo.set_angle(0)    # Turn left
-time.sleep(1)
-servo.set_angle(180)   # Turn right
-time.sleep(1)
-servo.deinit()
+if __name__ == '__main__':
+    # Example usage:
+    servo = Servo(pin=13)  # Use your actual GPIO pin
+    servo.set_angle(0)    
+    time.sleep(1)
+    servo.set_angle(90)    
+    #time.sleep(1)
+    #servo.set_angle(180)   
+    time.sleep(1)
+    servo.deinit()
 
