@@ -1,5 +1,3 @@
-# matrix.py
-
 import time
 from machine import I2C
 
@@ -52,6 +50,66 @@ class Eyes(LEDMatrix):
         self.show(self.LEFT_OPEN_RIGHT_CLOSED)
         time.sleep(duration)
         self.show(self.OPEN)
+
+    def glance(self, eye="left", direction="center"):
+        """
+        Moves the 2x2 pupil in the given eye to the specified direction.
+        Direction: 'center', 'left', 'right', 'up', 'down'
+        """
+        base = self.OPEN[:]
+
+        pupil_positions = {
+            "center": (3, 3),
+            "left":   (3, 2),
+            "right":  (3, 4),
+            "up":     (2, 3),
+            "down":   (4, 3)
+        }
+
+        if direction not in pupil_positions:
+            print("Invalid glance direction:", direction)
+            return
+
+        def modify_pupil(x, y, action):
+            """Clear or draw the 2x2 pupil at (x, y)."""
+            for dy in range(2):
+                row = y + dy
+                if row < 0 or row >= 8:
+                    continue
+                for dx in range(2):
+                    col = x + dx
+                    bit = 1 << (7 - col)
+                    index = row * 2 if eye == "left" else row * 2 + 1
+                    if action == "clear":
+                        base[index] &= ~bit
+                    elif action == "draw":
+                        base[index] |= bit
+
+        # Step 1: Clear the default center pupil
+        modify_pupil(3, 3, "clear")
+
+        # Step 2: Draw the new pupil at the desired location
+        x, y = pupil_positions[direction]
+        modify_pupil(x, y, "draw")
+
+        self.show(base)
+
+
+    def test_eyes(self):
+        self.show(self.OPEN)
+        time.sleep(1)
+
+        directions = ["center", "left", "right", "up", "down"]
+        for d in directions:
+            self.glance("left", d)
+            time.sleep(0.6)
+
+        for d in directions:
+            self.glance("right", d)
+            time.sleep(0.6)
+
+        self.show(self.OPEN)
+        time.sleep(1)
 
     # ────── Bitmaps ──────
 
@@ -163,6 +221,15 @@ class Symbols(LEDMatrix):
 
         self.show(bitmap)
 
+    def test_symbol_display(self):
+        print("Running Symbol Display Test...")
+        self.display(left="plus", right="circle")
+        time.sleep(2)
+        self.display(left="x", right="plus")
+        time.sleep(2)
+        self.display()
+        print("Symbol Display Test Complete.")
+
 
 # ───────────────────────────────
 # Demo Usage
@@ -177,19 +244,8 @@ if __name__ == "__main__":
     eyes = Eyes(i2c)
     symbols = Symbols(i2c)
 
-    # Eyes demo
-    eyes.show(eyes.OPEN)
-    time.sleep(2)
-    eyes.instant_close()
-    eyes.wake_up_right_eye()
-    eyes.right_wink()
+    # Uncomment the test you'd like to run:
+    eyes.test_eyes()
+    # symbols.test_symbol_display()
 
-    # Symbol demo
-    symbols.display(left="plus", right="circle")
-    time.sleep(3)
-
-    symbols.display(left="x", right="plus")
-    time.sleep(3)
-
-    symbols.display()  # Clear both
     print("Demo complete.")
