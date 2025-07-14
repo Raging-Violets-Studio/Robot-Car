@@ -117,14 +117,14 @@ class Eyes(LEDMatrix):
 class Symbols(LEDMatrix):
     SYMBOLS = {
         "plus": [
-            0x18,  # Row 1
-            0x18,  # Row 2
-            0x7E,  # Row 3
-            0x7E,  # Row 4
-            0x18,  # Row 5
-            0x18,  # Row 6
-            0x00,  # Row 7
-            0x00   # Row 8
+            0x18,
+            0x18,
+            0x7E,
+            0x7E,
+            0x18,
+            0x18,
+            0x00,
+            0x00
         ],
         "circle": [
             0x18,
@@ -149,23 +149,10 @@ class Symbols(LEDMatrix):
         "none": [0x00] * 8
     }
 
-    def render_symbol(self, name: str, side: str = "left") -> bytearray:
-        symbol = self.SYMBOLS.get(name, self.SYMBOLS["none"])
-        bitmap = bytearray(16)
-        for row in range(8):
-            if side == "left":
-                bitmap[row * 2] = symbol[row]
-                bitmap[row * 2 + 1] = 0x00
-            elif side == "right":
-                bitmap[row * 2] = 0x00
-                bitmap[row * 2 + 1] = symbol[row]
-            elif side == "both":
-                bitmap[row * 2] = symbol[row]
-                bitmap[row * 2 + 1] = symbol[row]
-        return bitmap
-
-    def show_symbol(self, left: str = "none", right: str = "none"):
-        """Display two symbols side-by-side."""
+    def display(self, left: str = "none", right: str = "none"):
+        """
+        Display symbols on left and right halves of the matrix.
+        """
         left_data = self.SYMBOLS.get(left, self.SYMBOLS["none"])
         right_data = self.SYMBOLS.get(right, self.SYMBOLS["none"])
 
@@ -173,6 +160,7 @@ class Symbols(LEDMatrix):
         for row in range(8):
             bitmap[row * 2] = left_data[row]
             bitmap[row * 2 + 1] = right_data[row]
+
         self.show(bitmap)
 
 
@@ -197,11 +185,11 @@ if __name__ == "__main__":
     eyes.right_wink()
 
     # Symbol demo
-    symbols.show_symbol(left="plus", right="circle")
+    symbols.display(left="plus", right="circle")
     time.sleep(3)
 
-    symbols.show_symbol(left="x", right="plus")
+    symbols.display(left="x", right="plus")
     time.sleep(3)
 
-    symbols.show_symbol(left="none", right="none")
+    symbols.display()  # Clear both
     print("Demo complete.")
